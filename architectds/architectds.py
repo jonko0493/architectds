@@ -1078,9 +1078,10 @@ class Arm9Binary(GenericArmBinary):
             self.add_dir_target(out_path_dir)
 
             in_path_png = in_out_file.in_path
-            in_args = ''
+            in_args = '#'
             with open(f'{os.path.splitext(in_out_file.in_path)[0]}.ptxc', 'r') as arg_file:
-                in_args = arg_file.readline()
+                while in_args.strip().startswith('#'):
+                    in_args = arg_file.readline()
 
             out_path_tex = ptexconv_out_path + '_tex.bin'
             out_path_idx = ptexconv_out_path + '_idx.bin'
@@ -1645,9 +1646,10 @@ class GenericFilesystem(GenericBinary):
             self.add_dir_target(out_path_dir)
 
             in_path_png = in_out_file.in_path
-            in_args = ''
+            in_args = '#'
             with open(f'{os.path.splitext(in_out_file.in_path)[0]}.ptxc', 'r') as arg_file:
-                in_args = arg_file.readline()
+                while in_args.strip().startswith('#'):
+                    in_args = arg_file.readline()
 
             out_path_tex = ptexconv_out_path + '_tex.bin'
             out_path_idx = ptexconv_out_path + '_idx.bin'
