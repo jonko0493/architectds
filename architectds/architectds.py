@@ -1090,7 +1090,7 @@ class Arm9Binary(GenericArmBinary):
             build_args = f'{out_path_tex}'
             if '-f tex4x4' in in_args:
                 build_args += f' {out_path_idx}'
-            if '-f direct' not in in_args:
+            if '-f direct' not in in_args and '-fp' not in in_args:
                 build_args += f' {out_path_pal}'
 
             self.print(
@@ -1102,7 +1102,7 @@ class Arm9Binary(GenericArmBinary):
             self.add_data_file(out_path_tex, out_path_dir)
             if '-f tex4x4' in in_args:
                 self.add_data_file(out_path_idx, out_path_dir)
-            if '-f direct' not in in_args:
+            if '-f direct' not in in_args and '-fp' not in in_args:
                 self.add_data_file(out_path_pal, out_path_dir)
 
 class Arm9DynamicLibrary(GenericArmBinary):
@@ -1658,13 +1658,13 @@ class GenericFilesystem(GenericBinary):
             build_args = f'{out_path_tex}'
             if '-f tex4x4' in in_args:
                 build_args += f' {out_path_idx}'
-            if '-f direct' not in in_args:
+            if '-f direct' not in in_args and '-fp' not in in_args:
                 build_args += f' {out_path_pal}'
 
             self.target_files.append(out_path_tex)
             if '-f tex4x4' in in_args:
                 self.target_files.append(out_path_idx)
-            if '-f direct' not in in_args:
+            if '-f direct' not in in_args and '-fp' not in in_args:
                 self.target_files.append(out_path_pal)
 
             self.print(
