@@ -133,6 +133,54 @@ def gen_out_file_list(in_files, in_prefix, out_prefix, in_suffix, out_suffix):
 
     return files
 
+class CustomNinja():
+    '''
+    Class that defines a custom component to add to the architectds ninja build.
+    '''
+
+    def __init__(self):
+        self.tools = []
+        self.rules = []
+        self.targets = []
+        self.phonies = {}
+        self.dirs = []
+
+    def add_tool(self, name: str, path: str):
+        ''' 
+        Add a custom tool to the ninja.build file (for use by later custom rules)
+        '''
+        self.tools.append(f'{name} = {path}\n')
+
+    def add_rule(self, name: str, command: str, params: list):
+        '''
+        Add a custom rule to the ninja.build file
+        '''
+        rule = f'rule {name}\n  command = {command}\n'
+        for param in params:
+            rule += f'  {param}\n'
+        self.rules.append(rule)
+
+    def add_phony(self, name: str):
+        '''
+        Add a custom phony target. Other commands can reference this phony to help
+        control build flow.
+        '''
+        self.phonies[name] = ''
+
+    def add_target(self, result: str, inputs: list, gate: str, params: dict):
+        '''
+        Add a custom build target.
+        '''
+        target = f'build {result}: {" ".join(inputs)} || {gate}\n'
+        for param in params.keys:
+            target += f'  {param} = {params[param]}'
+    
+    def add_dir(self, dir: str):
+        '''
+        Adds a directory to be created
+        '''
+        self.dirs.append(dir)
+
 class GenericBinary():
     '''
     Class that defines any binary that may be built as a combination of multiple
@@ -143,6 +191,7 @@ class GenericBinary():
         self.flag_assets_name = flag_assets_name
         self.contents = ''
         self.dir_targets = set()
+        self.customizations = []
 
     def print(self, string):
         '''
@@ -258,6 +307,12 @@ class GenericBinary():
         if parent is not None:
             self.add_dir_target(parent)
 
+    def add_customization(self, custom):
+        '''
+        Add a customized component to the generated ninja build.
+        '''
+        self.customizations.append(custom)
+
     def _gen_rules_build_directories(self):
         '''
         Generate rules to make all output directories in the right order with
@@ -316,18 +371,23 @@ class GenericBinary():
             'DSLTOOL   = ${BLOCKSDS}/tools/dsltool/dsltool\n'
             '\n'
         )
-
         # In MinGW, paths for executable files must start with 'C:/', but
         # python3 expects them to start with '/c/'.
         blocksdsext = BLOCKSDSEXT.replace('C:/', '/c/')
         self.print(
             f'OBJ2DL      = python3 {blocksdsext}/nitro-engine/tools/obj2dl/obj2dl.py\n'
             f'MD5_TO_DSMA = python3 {blocksdsext}/nitro-engine/tools/md5_to_dsma/md5_to_dsma.py\n'
-        )
-
-        self.print(
             'PTEXCONV    = ${BLOCKSDSEXT}/ptexconv/ptexconv\n'
             '\n'
+        )
+
+        for custom in self.customizations:
+            for tool in custom.tools:
+                self.print(tool)
+            if len(custom.tools) > 0:
+                self.print('\n')
+
+        self.print(
             'rule makedir\n'
             '  command = mkdir $out\n'
             '\n'
@@ -407,6 +467,22 @@ class GenericBinary():
             '  command = ${PTEXCONV} ${args}\n'
             '\n'
         )
+
+        for custom in self.customizations:
+            for rule in custom.rules:
+                self.print(rule)
+
+        for custom in self.customizations:
+            for phony in custom.phonies.keys:
+                self.print(f'build {phony}: phony {" ".join(custom.phonies[phony])}')
+
+        for custom in self.customizations:
+            for target in custom.targets:
+                self.print(target)
+
+        for custom in self.customizations:
+            for dir in custom.dirs:
+                self.add_dir_target(dir)
 
 class GenericCpuBinary(GenericBinary):
     '''
