@@ -996,6 +996,10 @@ class Arm9Binary(GenericArmBinary):
                 str(json_data['texture'][1])
             )
 
+            if 'use-vertex-color' in json_data:
+                if json_data['use-vertex-color']:
+                    args += ' --use-vertex-color'
+
             if 'blender-fix' in json_data:
                 if json_data['blender-fix']:
                     args += ' --blender-fix'
