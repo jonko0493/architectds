@@ -2280,6 +2280,10 @@ class GenericFilesystem(GenericBinary):
                 if json_data['blender-fix']:
                     args += ' --blender-fix'
 
+            if 'use-vertex-color' in json_data:
+                if json_data['use-vertex-color']:
+                    args += ' --use-vertex-color'
+
             base_name = remove_ext(get_file_name(in_path_md5mesh))
 
             args += f' --name {base_name} --output {out_path_dir} --model {in_path_md5mesh}'
