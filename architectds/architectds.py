@@ -2406,7 +2406,7 @@ class GenericFilesystem(GenericBinary):
             in_files = []
             out_files = [os.path.join(font_output_dir, f"{font['name']}.fnt"), os.path.join(font_output_dir, f"{font['name']}.png"), os.path.join(font_output_dir, f"{font['name']}.ptxc")]
             for json_file in os.scandir(os.path.join(locale_dir, locale['id'])):
-                if not json_file.name.endswith('.json'):
+                if not json_file.name.endswith('.json') and not json_file.name.endswith('.njson'):
                     continue
                 with open(json_file) as file:
                     locale_json = json.load(file)
@@ -2477,7 +2477,7 @@ class GenericFilesystem(GenericBinary):
         for in_dir in in_dirs:
             for root, dirs, files in os.walk(in_dir):
                 for file in files:
-                    if not file.endswith('.json') or Path(file).stem.endswith('_col'):
+                    if (not file.endswith('.json') and not file.endswith('.njson')) or Path(file).stem.endswith('_col'):
                         continue
                     with open(os.path.join(root, file), 'r') as json_file:
                         struct = json.load(json_file)
@@ -2568,7 +2568,7 @@ class GenericFilesystem(GenericBinary):
                             f'build {out_file}: copy {bcol_file} || {out_dir}\n'
                             '\n'
                         )
-                    elif file.endswith('.json'):
+                    elif file.endswith('.json') or file.endswith('.njson'):
                         if ('must' in out_dirs[in_dir] and out_dirs[in_dir]['must'] not in os.path.join(root, file)) or ('must_not' in out_dirs[in_dir] and out_dirs[in_dir]['must_not'] in os.path.join(root, file)):
                             continue
                         json_file = os.path.join(root, file)
@@ -2577,11 +2577,11 @@ class GenericFilesystem(GenericBinary):
                             out_bin = os.path.join(top_out_dir, os.path.basename(os.path.dirname(os.path.dirname(json_file))), f'{Path(json_file).stem}.bin')
                         else:
                             out_bin = json_file.replace(in_dir, top_out_dir)
-                        out_bin = out_bin.replace('.json', '.bin')
+                        out_bin = out_bin.replace('.njson', '.bin').replace('.json', '.bin')
                         out_dir = os.path.dirname(out_bin)
                         self.prebuild_ninja.add_dir_target(out_dir)
 
-                        if file.endswith('items.json'):
+                        if file.endswith('items.njson'):
                             for locale in config_json['locales']['available_locales']:
                                 if root.endswith(locale['id']):
                                     default_font = os.path.join(font_dir, f"{[font['font'] for font in locale['fonts'] if font['name'] == locale['default_font']][0]}.ttf")
