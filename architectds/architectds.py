@@ -337,6 +337,7 @@ class GenericBinary():
             'GEN_HEADER  = python3 build_scripts/structify.py gen_header\n'
             'STRUCTIFY   = python3 build_scripts/structify.py structify\n'
             'ENUM_MAKE   = python3 build_scripts/make_enum.py\n'
+            'DSCR_TRANS  = python3 build_scripts/script_translate.py\n'
             'DSCR_COMP   = python3 build_scripts/script_compiler.py\n'
             'GEN_FONT    = python3 build_scripts/generate_font.py\n'
             'SIZE_IMG    = python3 build_scripts/size_image.py\n'
@@ -433,6 +434,9 @@ class GenericBinary():
             '\n'
             'rule make_enum\n'
             '  command = ${ENUM_MAKE} $in $out\n'
+            '\n'
+            'rule dscr_translate\n'
+            '  command = ${DSCR_TRANS} $in $out\n'
             '\n'
             'rule dscr_compile\n'
             '  command = ${DSCR_COMP} $in $out ${CC_ARM} ${OC_ARM} ${font} ${max_width} ${word_wrap}\n'
@@ -2521,6 +2525,20 @@ class GenericFilesystem(GenericBinary):
                     self.prebuild_ninja.print(
                         f'build {os.path.join(dat_dir, f"{Path(file).stem}_png_siz.bin")}: size_image {os.path.join(root, file)} || {dat_dir}\n'
                         '\n'
+                    )
+
+    def translate_scripts(self, in_dirs: list):
+        for in_dir in in_dirs:
+            for root, dirs, files in os.walk(in_dir):
+                for file in files:
+                    if '/en' in root or not file.endswith('.wjson'):
+                        continue
+                    wjson_file = os.path.join(root, file)
+                    out_dscr = wjson_file.replace('/weblate', '/script').replace('.wjson', '.dscr')
+                    out_dir = os.path.dirname(out_dscr)
+                    self.prebuild_ninja.add_dir_target(out_dir)
+                    self.prebuild_ninja.print(
+                        f'build {out_dscr}: dscr_translate {wjson_file} || {out_dir}\n'
                     )
 
     def compile_scripts(self, in_dirs: list, font_dir: str, config_json):
