@@ -2414,7 +2414,7 @@ class GenericFilesystem(GenericBinary):
                     continue
                 with open(json_file) as file:
                     locale_json = json.load(file)
-                    if font['name'] not in locale_json['font'].split('|'):
+                    if font['name'] not in locale_json['_font'].split('|'):
                         continue
                     in_files.append(json_file.path)
             if locale['default_font'] == font['name'] and not locale['font_partitioning']:
@@ -2485,10 +2485,10 @@ class GenericFilesystem(GenericBinary):
                         continue
                     with open(os.path.join(root, file), 'r') as json_file:
                         struct = json.load(json_file)
-                        if 'typedef' in struct:
-                            if struct['typedef'] not in headers:
-                                headers[struct['typedef']] = []
-                            headers[struct['typedef']].append(os.path.join(root, file))
+                        if '_typedef' in struct:
+                            if struct['_typedef'] not in headers:
+                                headers[struct['_typedef']] = []
+                            headers[struct['_typedef']].append(os.path.join(root, file))
         for header in headers:
             self.prebuild_ninja.print(
                 f'build {f"src/common/typedefs/J_{header}.hpp"}: gen_header {" ".join(headers[header])} || src/common/typedefs\n'
