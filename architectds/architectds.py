@@ -2531,7 +2531,7 @@ class GenericFilesystem(GenericBinary):
         for in_dir in in_dirs:
             for root, dirs, files in os.walk(in_dir):
                 for file in files:
-                    if '/en' in root or not file.endswith('.wjson'):
+                    if '/en/' in f'{root}/' or not file.endswith('.wjson'):
                         continue
                     wjson_file = os.path.join(root, file)
                     out_dscr = wjson_file.replace('/weblate', '/script').replace('.wjson', '.dscr')
