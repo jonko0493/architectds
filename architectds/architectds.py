@@ -2532,6 +2532,14 @@ class GenericFilesystem(GenericBinary):
             for root, dirs, files in os.walk(in_dir):
                 for file in files:
                     if '/en/' in f'{root}/' or not file.endswith('.wjson'):
+                        if '/en/' not in f'{root}/' and file.endswith('.dscr') and not os.path.exists(os.path.join(root, file).replace('/script', '/weblate').replace('.dscr', '.wjson')):
+                            import re
+                            out_dscr = os.path.join(root, file)
+                            out_dir = os.path.dirname(out_dscr)
+                            self.prebuild_ninja.print(
+                                f'build {out_dscr}: copy {re.sub(r'\/\w{2}(-\w{4})?\/', '/en/', out_dscr)} || {out_dir}\n'
+                                '\n'
+                            )
                         continue
                     wjson_file = os.path.join(root, file)
                     out_dscr = wjson_file.replace('/weblate', '/script').replace('.wjson', '.dscr')
@@ -2539,6 +2547,7 @@ class GenericFilesystem(GenericBinary):
                     self.prebuild_ninja.add_dir_target(out_dir)
                     self.prebuild_ninja.print(
                         f'build {out_dscr}: dscr_translate {wjson_file} || {out_dir}\n'
+                        '\n'
                     )
 
     def compile_scripts(self, in_dirs: list, font_dir: str, config_json):
