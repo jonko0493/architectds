@@ -2372,7 +2372,7 @@ class GenericFilesystem(GenericBinary):
             
         for in_out_file in in_out_files:
             self.prebuild_ninja.print(
-                f'build {replace_ext(in_out_file.in_path, ".blend", ".md5mesh")}: blender {in_out_file.in_path}\n'
+                f'build {replace_ext(in_out_file.in_path, ".blend", ".json")}: blender {in_out_file.in_path}\n'
                 f'  blend_script = {actors_script}\n'
                 '\n'
             )
