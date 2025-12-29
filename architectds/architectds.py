@@ -1056,6 +1056,29 @@ class Arm9Binary(GenericArmBinary):
                     # The resulting binary file needs to be converted to C and H files
                     self.add_data_file(out_path_dsa, out_path_dir)
 
+            if 'texanims' in json_data:
+                in_path_dir = get_parent_dir(in_out_file.in_path)
+
+                for texanim in json_data['texanims']:
+                    assert 'file' in texanim
+                    in_path_md5texanim = os.path.join(in_path_dir, texanim['file'])
+
+                    args = f' --name {base_name} --output {out_path_dir} --texanims {in_path_md5texanim}'
+
+                    base_name_anim = remove_ext(get_file_name(in_path_md5anim))
+
+                    out_path_dst = in_out_file.out_path + '_' + base_name_anim + '.dst'
+                    self.target_files.append(out_path_dst)
+
+                    self.print(
+                        f'build {out_path_dst} : md5_to_dsma {in_path_md5texanim} {in_path_json} || {out_path_dir}\n'
+                        f'  args = {args}\n'
+                        '\n'
+                    )
+
+                    # The resulting binary file needs to be converted to C and H files
+                    self.add_data_file(out_path_dst, out_path_dir)
+
     def add_ptexconv_tex4x4(self, in_dirs, out_dir='ptexconv'):
         '''
         This function gets as input a list of directories. It will look for
@@ -2324,12 +2347,30 @@ class GenericFilesystem(GenericBinary):
                     out_path_dsa = in_out_file.out_path + '_' + base_name_anim + '.dsa'
                     self.target_files.append(out_path_dsa)
 
-                    args_str = ' '.join(args)
-
                     self.print(
                         f'build {out_path_dsa} : md5_to_dsma {in_path_md5anim} {in_path_json} || {out_path_dir}\n'
                         f'  args = {args}\n'
                          '\n'
+                    )
+            
+            if 'texanims' in json_data:
+                in_path_dir = get_parent_dir(in_out_file.in_path)
+
+                for texanim in json_data['texanims']:
+                    assert 'file' in texanim
+                    in_path_md5texanim = os.path.join(in_path_dir, texanim['file'])
+
+                    args = f' --name {base_name} --output {out_path_dir} --texanims {in_path_md5texanim}'
+
+                    base_name_anim = remove_ext(get_file_name(in_path_md5texanim))
+
+                    out_path_dst = in_out_file.out_path + '_' + base_name_anim + '.dst'
+                    self.target_files.append(out_path_dst)
+
+                    self.print(
+                        f'build {out_path_dst} : md5_to_dsma {in_path_md5texanim} {in_path_json} || {out_path_dir}\n'
+                        f'  args = {args}\n'
+                        '\n'
                     )
 
     def add_nitro_engine_blend_env(self, env_script: str, in_dirs: list, exclude_dirs: list, out_dir='models'):
