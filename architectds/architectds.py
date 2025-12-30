@@ -341,6 +341,7 @@ class GenericBinary():
             'DSCR_COMP   = python3 build_scripts/script_compiler.py\n'
             'GEN_FONT    = python3 build_scripts/generate_font.py\n'
             'SIZE_IMG    = python3 build_scripts/size_image.py\n'
+            'TEXANIM     = python3 build_scripts/convert_texanims.py\n'
             '\n'
         )
 
@@ -443,6 +444,9 @@ class GenericBinary():
             '\n'
             'rule gen_font\n'
             '  command = ${GEN_FONT} ${out_file} ${FONTBM} ${font} ${font_size} ${choice_mark} ${is_script} $in\n'
+            '\n'
+            'rule convert_texanim\n'
+            '  command = ${TEXANIM} $in $out\n'
             '\n'
             'rule size_image\n'
             '  command = ${SIZE_IMG} $in $out\n'
@@ -2324,8 +2328,6 @@ class GenericFilesystem(GenericBinary):
                     out_path_dsa = in_out_file.out_path + '_' + base_name_anim + '.dsa'
                     self.target_files.append(out_path_dsa)
 
-                    args_str = ' '.join(args)
-
                     self.print(
                         f'build {out_path_dsa} : md5_to_dsma {in_path_md5anim} {in_path_json} || {out_path_dir}\n'
                         f'  args = {args}\n'
@@ -2627,6 +2629,30 @@ class GenericFilesystem(GenericBinary):
                                 f'build {out_bin}: structify {json_file} || {out_dir}\n'
                                 '\n'
                             )
+
+    def add_texanims(self, in_dirs: list, out_dir='models'):
+        full_out_dir = os.path.join(self.out_assets_path, out_dir)
+
+        texanim_in_out_files =[]
+
+        for in_dir in in_dirs:
+            in_files = gen_input_file_list(in_dir, ('.texanim'))
+            texanim_in_out_files.extend(gen_out_file_list(in_files, in_dir, full_out_dir, '.texanim', ''))
+
+        for in_out_file in texanim_in_out_files:
+            out_path_dir = get_parent_dir(in_out_file.out_path)
+            self.add_dir_target(out_path_dir)
+
+            in_path_texanim = in_out_file.in_path
+            out_path_dst = replace_ext(get_file_name(in_path_texanim), '.texanim', '.dst')
+            out_path_dst = f'{get_file_name(out_path_dir)}_{out_path_dst}'
+            out_path_dst = os.path.join(out_path_dir, out_path_dst)
+            self.target_files.append(out_path_dst)
+            
+            self.print(
+                f'build {out_path_dst}: convert_texanim {in_path_texanim} || {out_path_dir}\n'
+                '\n'
+            )
 
 class NitroFS(GenericFilesystem):
     '''
