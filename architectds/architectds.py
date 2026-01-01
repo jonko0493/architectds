@@ -2356,26 +2356,6 @@ class GenericFilesystem(GenericBinary):
                         f'  args = {args}\n'
                          '\n'
                     )
-            
-            if 'texanims' in json_data:
-                in_path_dir = get_parent_dir(in_out_file.in_path)
-
-                for texanim in json_data['texanims']:
-                    assert 'file' in texanim
-                    in_path_md5texanim = os.path.join(in_path_dir, texanim['file'])
-
-                    args = f' --name {base_name} --output {out_path_dir} --texanims {in_path_md5texanim}'
-
-                    base_name_anim = remove_ext(get_file_name(in_path_md5texanim))
-
-                    out_path_dst = in_out_file.out_path + '_' + base_name_anim + '.dst'
-                    self.target_files.append(out_path_dst)
-
-                    self.print(
-                        f'build {out_path_dst} : md5_to_dsma {in_path_md5texanim} {in_path_json} || {out_path_dir}\n'
-                        f'  args = {args}\n'
-                        '\n'
-                    )
 
     def add_nitro_engine_blend_env(self, env_script: str, in_dirs: list, exclude_dirs: list, out_dir='models'):
         '''
