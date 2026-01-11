@@ -2475,7 +2475,7 @@ class GenericFilesystem(GenericBinary):
                 font_output_dir = f'assets/font/bmfont/{locale['id']}/{os.path.basename(os.path.dirname(os.path.dirname(root)))}'
                 with open(os.path.join(root, file)) as scr:
                     txt = scr.read()
-                    if len([l for l in txt.splitlines() if 'DIALOGUE(' in l or 'SELECT(' in l]) > 0:
+                    if len([l for l in txt.splitlines() if 'DIALOGUE(' in l or 'SELECT(' in l or 'TITLE(' in l]) > 0:
                         self.prebuild_ninja.add_dir_target(font_output_dir)
                         in_files = [os.path.join(root, file), options_file]
                         base_name = f'{font_output_dir}/{os.path.splitext(file)[0]}'
