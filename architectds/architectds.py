@@ -332,7 +332,7 @@ class GenericBinary():
         )
 
         self.print(
-            'BLENDER     = /blender/blender\n'
+            'BLENDER     = blender\n'
             'FONTBM      = /bmfont/fontbm\n'
             'GEN_HEADER  = python3 build_scripts/structify.py gen_header\n'
             'STRUCTIFY   = python3 build_scripts/structify.py structify\n'
